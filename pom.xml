@@ -1,0 +1,51 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <artifactId>javatorrent-gui</artifactId>
+    <packaging>jar</packaging>
+    <name>JavaTorrent User Interface</name>
+    <description>JavaTorrent implementation as GUI</description>
+    <properties>
+        <maven.compiler.source>1.8</maven.compiler.source>
+        <maven.compiler.target>1.8</maven.compiler.target>
+        <dependency.org.johnnei.javatorrent>0.05.0-SNAPSHOT</dependency.org.johnnei.javatorrent>
+    </properties>
+    <dependencies>
+        <dependency>
+            <groupId>org.johnnei</groupId>
+            <artifactId>javatorrent-bittorrent</artifactId>
+            <version>${dependency.org.johnnei.javatorrent}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.johnnei</groupId>
+            <artifactId>javatorrent-bittorrent-tracker-udp</artifactId>
+            <version>${dependency.org.johnnei.javatorrent}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.johnnei</groupId>
+            <artifactId>javatorrent-bittorrent-extension</artifactId>
+            <version>${dependency.org.johnnei.javatorrent}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.johnnei</groupId>
+            <artifactId>javatorrent-bittorrent-extension-ut-metadata</artifactId>
+            <version>${dependency.org.johnnei.javatorrent}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-api</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.logging.log4j</groupId>
+            <artifactId>log4j-api</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.logging.log4j</groupId>
+            <artifactId>log4j-core</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.logging.log4j</groupId>
+            <artifactId>log4j-slf4j-impl</artifactId>
+        </dependency>
+    </dependencies>
+</project>
