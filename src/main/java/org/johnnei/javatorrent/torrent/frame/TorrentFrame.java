@@ -1,5 +1,13 @@
 package org.johnnei.javatorrent.torrent.frame;
 
+import javax.swing.JFrame;
+import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.JTabbedPane;
+import javax.swing.JTable;
+import javax.swing.Timer;
+import javax.swing.WindowConstants;
+
 import java.awt.BorderLayout;
 import java.awt.Dimension;
 import java.awt.event.ActionEvent;
@@ -8,17 +16,10 @@ import java.awt.event.KeyEvent;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.swing.JFrame;
-import javax.swing.JPanel;
-import javax.swing.JScrollPane;
-import javax.swing.JTabbedPane;
-import javax.swing.JTable;
-import javax.swing.Timer;
-
 import org.johnnei.javatorrent.TorrentClient;
 import org.johnnei.javatorrent.Version;
-import org.johnnei.javatorrent.torrent.download.Torrent;
-import org.johnnei.javatorrent.torrent.download.files.Piece;
+import org.johnnei.javatorrent.torrent.Torrent;
+import org.johnnei.javatorrent.torrent.files.Piece;
 import org.johnnei.javatorrent.torrent.frame.table.FilesTableModel;
 import org.johnnei.javatorrent.torrent.frame.table.PeerTableModel;
 import org.johnnei.javatorrent.torrent.frame.table.PieceCellRenderer;
@@ -26,7 +27,6 @@ import org.johnnei.javatorrent.torrent.frame.table.PiecesTableModel;
 import org.johnnei.javatorrent.torrent.frame.table.ProgressCellRenderer;
 import org.johnnei.javatorrent.torrent.frame.table.TorrentTableModel;
 import org.johnnei.javatorrent.torrent.frame.table.TrackerTableModel;
-import org.johnnei.javatorrent.torrent.tracker.TrackerManager;
 
 public class TorrentFrame extends JFrame implements ActionListener {
 
@@ -37,7 +37,7 @@ public class TorrentFrame extends JFrame implements ActionListener {
 	private Timer updateTimer;
 
 	public TorrentFrame(TorrentClient torrentClient) {
-		torrents = new ArrayList<Torrent>();
+		torrents = new ArrayList<>();
 
 		setPreferredSize(new Dimension(1280, 720));
 		setLayout(new BorderLayout());
@@ -46,7 +46,7 @@ public class TorrentFrame extends JFrame implements ActionListener {
 		setLocationRelativeTo(null);
 		setPreferredSize(new Dimension(getWidth() + getInsets().left + getInsets().right, getHeight() + getInsets().top + getInsets().bottom));
 
-		JTabbedPane details = createDetailsView(torrentClient.getTrackerManager());
+		JTabbedPane details = createDetailsView(torrentClient);
 		details.setPreferredSize(new Dimension(getWidth(), 350));
 
 		torrentList = new JTable(new TorrentTableModel(torrents));
@@ -57,22 +57,22 @@ public class TorrentFrame extends JFrame implements ActionListener {
 		add(menubar, BorderLayout.NORTH);
 		add(new JScrollPane(torrentList), BorderLayout.CENTER);
 		add(details, BorderLayout.SOUTH);
-		setDefaultCloseOperation(EXIT_ON_CLOSE);
+		setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
 		pack();
 		updateTimer = new Timer(1000, this);
 		updateTimer.start();
 	}
 
-	private JTabbedPane createDetailsView(TrackerManager trackerManager) {
+	private JTabbedPane createDetailsView(TorrentClient torrentClient) {
 		JTabbedPane detailsPane = new JTabbedPane();
-		detailsPane.addTab("General", new TabGeneral(this, trackerManager));
+		detailsPane.addTab("General", new TabGeneral(this, torrentClient));
 
 		JTable filesTable = new JTable(new FilesTableModel(this));
 		filesTable.setFillsViewportHeight(true);
 		filesTable.setDefaultRenderer(Double.class, new ProgressCellRenderer());
-		detailsPane.addTab("Files", new JScrollPane(filesTable));
+		detailsPane.addTab("TorrentFileSet", new JScrollPane(filesTable));
 
-		JTable trackerTable = new JTable(new TrackerTableModel(this, trackerManager));
+		JTable trackerTable = new JTable(new TrackerTableModel(this, torrentClient));
 		trackerTable.setFillsViewportHeight(true);
 		detailsPane.addTab("Trackers", new JScrollPane(trackerTable));
 

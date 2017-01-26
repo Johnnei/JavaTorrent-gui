@@ -2,10 +2,10 @@ package org.johnnei.javatorrent.torrent.frame.table;
 
 import javax.swing.table.AbstractTableModel;
 
-import org.johnnei.javatorrent.torrent.download.Torrent;
+import org.johnnei.javatorrent.TorrentClient;
+import org.johnnei.javatorrent.bittorrent.tracker.ITracker;
+import org.johnnei.javatorrent.torrent.Torrent;
 import org.johnnei.javatorrent.torrent.frame.TorrentFrame;
-import org.johnnei.javatorrent.torrent.tracker.ITracker;
-import org.johnnei.javatorrent.torrent.tracker.TrackerManager;
 
 public class TrackerTableModel extends AbstractTableModel {
 
@@ -26,11 +26,11 @@ public class TrackerTableModel extends AbstractTableModel {
 	};
 
 	private TorrentFrame torrentFrame;
-	private TrackerManager trackerManager;
+	private TorrentClient torrentClient;
 
-	public TrackerTableModel(TorrentFrame torrentFrame, TrackerManager trackerManager) {
+	public TrackerTableModel(TorrentFrame torrentFrame, TorrentClient torrentClient) {
 		this.torrentFrame = torrentFrame;
-		this.trackerManager = trackerManager;
+		this.torrentClient = torrentClient;
 	}
 
 	@Override
@@ -41,7 +41,7 @@ public class TrackerTableModel extends AbstractTableModel {
 			return 0;
 		}
 
-		return trackerManager.getTrackersFor(torrent).size();
+		return torrentClient.getTrackersFor(torrent).size();
 	}
 
 	@Override
@@ -56,7 +56,7 @@ public class TrackerTableModel extends AbstractTableModel {
 
 	@Override
 	public Object getValueAt(int rowIndex, int columnIndex) {
-		ITracker item = trackerManager.getTrackersFor(torrentFrame.getSelectedTorrent()).get(rowIndex);
+		ITracker item = torrentClient.getTrackersFor(torrentFrame.getSelectedTorrent()).get(rowIndex);
 		switch(columnIndex) {
 			case COL_NAME:
 				return item.getName();

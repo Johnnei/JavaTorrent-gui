@@ -9,9 +9,6 @@ import java.io.IOException;
 import java.util.IllegalFormatException;
 import java.util.Properties;
 
-import org.johnnei.javatorrent.torrent.download.Torrent;
-import org.johnnei.javatorrent.utils.ThreadUtils;
-
 public class Config {
 
 	/**
@@ -86,7 +83,11 @@ public class Config {
 		try (BufferedReader inputStream = new BufferedReader(new FileReader(configFile))){
 			properties.load(inputStream);
 		} catch (IOException e) {
-			ThreadUtils.sleep(10);
+			try {
+				Thread.sleep(10);
+			} catch (InterruptedException ie) {
+				Thread.currentThread().interrupt();
+			}
 			load();
 		}
 	}
@@ -98,7 +99,11 @@ public class Config {
 		try (BufferedWriter outStream = new BufferedWriter(new FileWriter(configFile))) {
 			properties.store(outStream, "JavaTorrent GUI Configuration");
 		} catch (IOException e) {
-			ThreadUtils.sleep(10);
+			try {
+				Thread.sleep(10);
+			} catch (InterruptedException ie) {
+				Thread.currentThread().interrupt();
+			}
 			save();
 		}
 	}
@@ -180,14 +185,6 @@ public class Config {
 
 	public String getTempFolder() {
 		return folder;
-	}
-
-	public File getTorrentFileFor(Torrent torrent) {
-		return getTorrentFileFor(torrent.getHash());
-	}
-
-	public File getTorrentFileFor(String torrentHash) {
-		return new File(String.format("%s%s.torrent", getTempFolder(), torrentHash));
 	}
 
 	private boolean isBoolean(String s) {

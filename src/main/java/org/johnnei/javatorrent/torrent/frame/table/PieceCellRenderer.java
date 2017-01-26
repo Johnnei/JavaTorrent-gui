@@ -1,13 +1,14 @@
 package org.johnnei.javatorrent.torrent.frame.table;
 
+import javax.swing.JTable;
+import javax.swing.table.DefaultTableCellRenderer;
+
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.Graphics;
 
-import javax.swing.JTable;
-import javax.swing.table.DefaultTableCellRenderer;
-
-import org.johnnei.javatorrent.torrent.download.files.Piece;
+import org.johnnei.javatorrent.torrent.files.BlockStatus;
+import org.johnnei.javatorrent.torrent.files.Piece;
 
 public class PieceCellRenderer extends DefaultTableCellRenderer {
 
@@ -26,13 +27,13 @@ public class PieceCellRenderer extends DefaultTableCellRenderer {
 	protected void paintComponent(Graphics g) {
 		float pixelsPerBlock = (float) getWidth() / piece.getBlockCount();
 		
-		boolean isDone = piece.isDone(0);
-		boolean isRequested = piece.isRequested(0);
+		boolean isDone = piece.getBlockStatus(0) == BlockStatus.Verified;
+		boolean isRequested = isRequested(piece, 0);
 		boolean render = false;
 		int startIndex = 0;
 		
 		for (int i = 0; i < piece.getBlockCount(); i++) {
-			render = piece.isDone(i) != isDone || piece.isRequested(i) != isRequested;
+			render = piece.getBlockStatus(i) == BlockStatus.Verified || isRequested(piece, i) != isRequested;
 			
 			if (render || i + 1 >= piece.getBlockCount()) {
 				if (isDone) {
@@ -47,11 +48,15 @@ public class PieceCellRenderer extends DefaultTableCellRenderer {
 				g.fillRect((int) (startIndex * pixelsPerBlock), 0, (int) (blockCount * pixelsPerBlock), getHeight());
 				
 				startIndex = i;
-				isDone = piece.isDone(i);
-				isRequested = piece.isRequested(i);
+				isDone = piece.getBlockStatus(i) == BlockStatus.Verified;
+				isRequested = isRequested(piece, i);
 				render = false;
 			}
 		}
+	}
+
+	private boolean isRequested(Piece piece, int blockIndex) {
+		return piece.getBlockStatus(blockIndex) == BlockStatus.Requested || piece.getBlockStatus(blockIndex) == BlockStatus.Stored;
 	}
 
 }

@@ -13,16 +13,16 @@ import java.util.Observable;
 import javax.swing.JPanel;
 
 /**
- * Table base, Note that this is not an actual table.<Br/>
+ * Table base, Note that this is not an actual table.<br>
  * This is a base to help you draw a table without any restrictions
- * 
+ *
  * @author Johnnei
- * 
+ *
  */
 public abstract class TableBase extends JPanel implements MouseListener, MouseWheelListener {
 
 	/**
-	 * 
+	 *
 	 */
 	private static final long serialVersionUID = 1L;
 	/**
@@ -94,7 +94,7 @@ public abstract class TableBase extends JPanel implements MouseListener, MouseWh
 
 	/**
 	 * Draw a triangle
-	 * 
+	 *
 	 * @param g The Graphics canvas
 	 * @param x The bottom left position
 	 * @param y The bottom position
@@ -180,7 +180,7 @@ public abstract class TableBase extends JPanel implements MouseListener, MouseWh
 
 	/**
 	 * Draws the row with a selected background color
-	 * 
+	 *
 	 * @param g The graphics canvas
 	 */
 	public void drawSelectedBackground(Graphics g) {
@@ -191,7 +191,7 @@ public abstract class TableBase extends JPanel implements MouseListener, MouseWh
 
 	/**
 	 * Checks if the current row is visible after scrolling
-	 * 
+	 *
 	 * @return
 	 */
 	public boolean rowIsVisible() {
@@ -200,7 +200,7 @@ public abstract class TableBase extends JPanel implements MouseListener, MouseWh
 
 	/**
 	 * Gets the position to draw at
-	 * 
+	 *
 	 * @return
 	 */
 	public int getDrawY() {
@@ -209,7 +209,7 @@ public abstract class TableBase extends JPanel implements MouseListener, MouseWh
 
 	/**
 	 * Gets the position to drawString at
-	 * 
+	 *
 	 * @return
 	 */
 	public int getTextY() {
@@ -218,7 +218,7 @@ public abstract class TableBase extends JPanel implements MouseListener, MouseWh
 
 	/**
 	 * Gets the header text height for drawString
-	 * 
+	 *
 	 * @return
 	 */
 	public int getHeaderTextY() {
@@ -227,7 +227,7 @@ public abstract class TableBase extends JPanel implements MouseListener, MouseWh
 
 	/**
 	 * Gets the current Scroll Y offset
-	 * 
+	 *
 	 * @return
 	 */
 	public int getScrollY() {
@@ -236,7 +236,7 @@ public abstract class TableBase extends JPanel implements MouseListener, MouseWh
 
 	/**
 	 * The selected row
-	 * 
+	 *
 	 * @return
 	 */
 	public int getSelectedIndex() {
@@ -245,7 +245,7 @@ public abstract class TableBase extends JPanel implements MouseListener, MouseWh
 
 	/**
 	 * Sets the amount of items in the table
-	 * 
+	 *
 	 * @param i Count
 	 */
 	public void setItemCount(int i) {
@@ -256,7 +256,7 @@ public abstract class TableBase extends JPanel implements MouseListener, MouseWh
 
 	/**
 	 * Gets the observable object for this table
-	 * 
+	 *
 	 * @return
 	 */
 	public Observable getObservable() {

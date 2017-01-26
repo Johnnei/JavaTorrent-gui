@@ -1,16 +1,16 @@
 package org.johnnei.javatorrent.torrent.frame;
 
+import javax.swing.JButton;
+import javax.swing.JPanel;
+
 import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.IOException;
 
-import javax.swing.JButton;
-import javax.swing.JPanel;
-
 import org.johnnei.javatorrent.TorrentClient;
 import org.johnnei.javatorrent.magnetlink.MagnetLink;
-import org.johnnei.javatorrent.torrent.download.Torrent;
+import org.johnnei.javatorrent.torrent.Torrent;
 import org.johnnei.javatorrent.torrent.frame.controls.ImageButton;
 import org.johnnei.javatorrent.torrent.frame.popup.AddTorrentFrame;
 import org.johnnei.javatorrent.torrent.frame.popup.ConfigPopup;
@@ -63,7 +63,7 @@ public class MenubarPanel extends JPanel implements ActionListener {
 			if (addTorrent.isOk()) {
 				MagnetLink link = addTorrent.getMagnetLink();
 				Torrent torrent = link.getTorrent();
-				torrent.start();
+				torrentClient.download(torrent, link.getTrackerUrls());
 				owner.addTorrent(torrent);
 			}
 		} else if (e.getSource().equals(configButton)) {

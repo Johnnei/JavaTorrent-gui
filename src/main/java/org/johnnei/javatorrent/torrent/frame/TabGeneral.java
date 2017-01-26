@@ -1,13 +1,14 @@
 package org.johnnei.javatorrent.torrent.frame;
 
+import javax.swing.JPanel;
+
 import java.awt.Color;
 import java.awt.Graphics;
 
-import javax.swing.JPanel;
-
-import org.johnnei.javatorrent.torrent.download.Torrent;
-import org.johnnei.javatorrent.torrent.tracker.TrackerManager;
-import org.johnnei.javatorrent.torrent.util.StringUtil;
+import org.johnnei.javatorrent.TorrentClient;
+import org.johnnei.javatorrent.torrent.Torrent;
+import org.johnnei.javatorrent.utils.StringFormatUtils;
+import org.johnnei.javatorrent.utils.TorrentUtils;
 
 public class TabGeneral extends JPanel {
 
@@ -15,10 +16,10 @@ public class TabGeneral extends JPanel {
 
 	private TorrentFrame torrentFrame;
 
-	private TrackerManager trackerManager;
+	private TorrentClient torrentClient;
 
-	public TabGeneral(TorrentFrame torrentFrame, TrackerManager trackerManager) {
-		this.trackerManager = trackerManager;
+	public TabGeneral(TorrentFrame torrentFrame, TorrentClient torrentClient) {
+		this.torrentClient = torrentClient;
 		this.torrentFrame = torrentFrame;
 	}
 
@@ -40,28 +41,28 @@ public class TabGeneral extends JPanel {
 		Torrent torrent = torrentFrame.getSelectedTorrent();
 		if (torrent != null) {
 			name += torrent.getDisplayName();
-			hash += torrent.getHash();
+			hash += torrent.getMetadata().getHashString();
 			if (torrent.isDownloadingMetadata()) {
 				totalSize += "Retrieving metadata";
 				pieces += "Retrieving metadata";
 				leftSize += "Retrieving metadata";
 				uploaded += "Retrieving metadata";
 			} else {
-				totalSize += StringUtil.compactByteSize(torrent.getFiles().getTotalFileSize());
-				pieces += torrent.getFiles().countCompletedPieces()+ "/" + torrent.getFiles().getPieceCount();
-				leftSize += StringUtil.compactByteSize(torrent.getFiles().countRemainingBytes());
-				uploaded += StringUtil.compactByteSize(torrent.getUploadedBytes());
+				totalSize += StringFormatUtils.compactByteSize(torrent.getFileSet().getTotalFileSize());
+				pieces += torrent.getFileSet().countCompletedPieces()+ "/" + torrent.getFileSet().getPieceCount();
+				leftSize += StringFormatUtils.compactByteSize(torrent.getFileSet().countRemainingBytes());
+				uploaded += StringFormatUtils.compactByteSize(torrent.getUploadedBytes());
 			}
-			pending += Integer.toString(trackerManager.getConnectingCountFor(torrent));
+			pending += Integer.toString(torrentClient.getConnectingCountFor(torrent));
 			peers += torrent.getSeedCount();
 			leechers += torrent.getLeecherCount();
-			download += StringUtil.compactByteSize(torrent.getDownloadRate()) + "/s";
-			upload += StringUtil.compactByteSize(torrent.getUploadRate()) + "/s";
+			download += StringFormatUtils.compactByteSize(torrent.getDownloadRate()) + "/s";
+			upload += StringFormatUtils.compactByteSize(torrent.getUploadRate()) + "/s";
 		}
 
 		double progress = 0;
 		if (torrent != null) {
-			progress = torrent.getProgress();
+			progress = TorrentUtils.getProgress(torrent);
 		}
 		g.setColor(Color.GRAY);
 		g.drawRect(10, 10, getWidth() - 20, 10);

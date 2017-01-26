@@ -1,24 +1,23 @@
 package org.johnnei.javatorrent.torrent;
 
 import java.io.File;
-import java.util.Optional;
 import java.util.concurrent.Executors;
 
 import org.johnnei.javatorrent.TorrentClient;
-import org.johnnei.javatorrent.bittorrent.phases.PhaseRegulator;
-import org.johnnei.javatorrent.download.algos.PhaseMetadata;
-import org.johnnei.javatorrent.download.algos.PhasePreMetadata;
+import org.johnnei.javatorrent.internal.network.socket.TcpSocket;
 import org.johnnei.javatorrent.magnetlink.MagnetLink;
-import org.johnnei.javatorrent.network.protocol.ConnectionDegradation;
-import org.johnnei.javatorrent.network.protocol.TcpSocket;
+import org.johnnei.javatorrent.module.UTMetadataExtension;
+import org.johnnei.javatorrent.network.ConnectionDegradation;
+import org.johnnei.javatorrent.phases.PhaseData;
+import org.johnnei.javatorrent.phases.PhaseMetadata;
+import org.johnnei.javatorrent.phases.PhasePreMetadata;
+import org.johnnei.javatorrent.phases.PhaseRegulator;
+import org.johnnei.javatorrent.phases.PhaseSeed;
 import org.johnnei.javatorrent.protocol.extension.ExtensionModule;
-import org.johnnei.javatorrent.protocol.messages.ut_metadata.UTMetadataExtension;
-import org.johnnei.javatorrent.torrent.download.Torrent;
-import org.johnnei.javatorrent.torrent.download.algos.BurstPeerManager;
-import org.johnnei.javatorrent.torrent.download.algos.PhaseData;
-import org.johnnei.javatorrent.torrent.download.algos.PhaseSeed;
 import org.johnnei.javatorrent.torrent.frame.TorrentFrame;
-import org.johnnei.javatorrent.torrent.tracker.PeerConnectorPool;
+import org.johnnei.javatorrent.tracker.PeerConnectorPool;
+import org.johnnei.javatorrent.tracker.UdpTrackerModule;
+import org.johnnei.javatorrent.tracker.UncappedDistributor;
 import org.johnnei.javatorrent.utils.config.Config;
 
 import org.slf4j.Logger;
@@ -30,44 +29,39 @@ public class JavaTorrent extends Thread {
 
 	public static void main(String[] args) {
 		final int maxConccurentConnectingPeers = Config.getConfig().getInt("peer-max_concurrent_connecting");
-		final int maxConnectingPeers = Config.getConfig().getInt("peer-max_connecting");
 		final File downloadFolder = new File(Config.getConfig().getString("download-output_folder"));
 
 		try {
 			TorrentClient torrentClient = new TorrentClient.Builder()
 					.setConnectionDegradation(new ConnectionDegradation.Builder()
-							.registerDefaultConnectionType(TcpSocket.class, TcpSocket::new, Optional.empty())
+							.registerDefaultConnectionType(TcpSocket.class, TcpSocket::new)
 							.build())
 					.registerModule(new ExtensionModule.Builder()
-							.registerExtension(new UTMetadataExtension())
+							.registerExtension(new UTMetadataExtension(new File(Config.getConfig().getTempFolder()), downloadFolder))
+							.build())
+					.registerModule(new UdpTrackerModule.Builder()
+							.setPort(Config.getConfig().getInt("download-port"))
 							.build())
 					.setPhaseRegulator(new PhaseRegulator.Builder()
-							.registerInitialPhase(
-									PhasePreMetadata.class,
-									(client, torrent) -> new PhasePreMetadata(client, torrent, Config.getConfig().getTorrentFileFor(torrent)),
-									Optional.of(PhaseMetadata.class))
-							.registerPhase(
-									PhaseMetadata.class,
-									(client, torrent) -> new PhaseMetadata(client, torrent, Config.getConfig().getTorrentFileFor(torrent), downloadFolder),
-									Optional.of(PhaseData.class))
-							.registerPhase(PhaseData.class, PhaseData::new, Optional.of(PhaseSeed.class))
-							.registerPhase(PhaseSeed.class, PhaseSeed::new, Optional.empty())
+							.registerInitialPhase(PhasePreMetadata.class, PhasePreMetadata::new, PhaseMetadata.class)
+							.registerPhase(PhaseMetadata.class, PhaseMetadata::new, PhaseData.class)
+							.registerPhase(PhaseData.class, PhaseData::new, PhaseSeed.class)
+							.registerPhase(PhaseSeed.class, PhaseSeed::new)
 							.build())
-					.setPeerConnector((client) -> new PeerConnectorPool(client, maxConccurentConnectingPeers, maxConnectingPeers))
-					.setExecutorService(Executors.newFixedThreadPool(Math.max(1, Runtime.getRuntime().availableProcessors() - 1)))
-					.setPeerManager(new BurstPeerManager(Config.getConfig().getInt("peer-max"), Config.getConfig().getFloat("peer-max_burst_ratio")))
+					.setPeerDistributor(UncappedDistributor::new)
+					.setPeerConnector((client) -> new PeerConnectorPool(client, maxConccurentConnectingPeers))
+					.setExecutorService(Executors.newScheduledThreadPool(Math.max(1, Runtime.getRuntime().availableProcessors() - 1)))
 					.setDownloadPort(Config.getConfig().getInt("download-port"))
 					.build();
 
 			TorrentFrame frame = new TorrentFrame(torrentClient);
 			boolean showGui = true;
-			for (int i = 0; i < args.length; i++) {
-				String arg = args[i];
+			for (String arg : args) {
 				if (arg.startsWith("magnet")) {
 					MagnetLink magnet = new MagnetLink(arg, torrentClient);
 					if (magnet.isDownloadable()) {
 						Torrent torrent = magnet.getTorrent();
-						torrent.start();
+						torrentClient.download(torrent, magnet.getTrackerUrls());
 					} else {
 						LOGGER.warn("Magnet link error occured");
 					}
