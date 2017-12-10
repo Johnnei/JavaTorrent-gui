@@ -1,13 +1,16 @@
 package org.johnnei.javatorrent.torrent;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.io.File;
 import java.util.concurrent.Executors;
 
 import org.johnnei.javatorrent.TorrentClient;
-import org.johnnei.javatorrent.internal.network.socket.TcpSocket;
 import org.johnnei.javatorrent.magnetlink.MagnetLink;
 import org.johnnei.javatorrent.module.UTMetadataExtension;
 import org.johnnei.javatorrent.network.ConnectionDegradation;
+import org.johnnei.javatorrent.network.socket.TcpSocket;
 import org.johnnei.javatorrent.phases.PhaseData;
 import org.johnnei.javatorrent.phases.PhaseMetadata;
 import org.johnnei.javatorrent.phases.PhasePreMetadata;
@@ -20,10 +23,7 @@ import org.johnnei.javatorrent.tracker.UdpTrackerModule;
 import org.johnnei.javatorrent.tracker.UncappedDistributor;
 import org.johnnei.javatorrent.utils.config.Config;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-public class JavaTorrent extends Thread {
+public class JavaTorrent {
 
 	private static Logger LOGGER = LoggerFactory.getLogger(JavaTorrent.class);
 
