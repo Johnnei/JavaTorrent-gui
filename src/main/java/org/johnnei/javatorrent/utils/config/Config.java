@@ -46,13 +46,13 @@ public class Config {
 
 	private Config() {
 		Properties defaultProperties = new Properties();
-		defaultProperties.put("peer-max", 500);
-		defaultProperties.put("peer-max_burst_ratio", 1.5F);
-		defaultProperties.put("peer-max_concurrent_connecting", 2);
-		defaultProperties.put("peer-max_connecting", 50);
+		defaultProperties.put("peer-max", "500");
+		defaultProperties.put("peer-max_burst_ratio", "1.5");
+		defaultProperties.put("peer-max_concurrent_connecting", "2");
+		defaultProperties.put("peer-max_connecting", "50");
 		defaultProperties.put("download-output_folder", ".\\");
-		defaultProperties.put("download-port", 6881);
-		defaultProperties.put("general-show_all_peers", false);
+		defaultProperties.put("download-port", "6881");
+		defaultProperties.put("general-show_all_peers", "false");
 
 		properties = new Properties(defaultProperties);
 

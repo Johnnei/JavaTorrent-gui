@@ -1,10 +1,10 @@
 package org.johnnei.javatorrent.torrent;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.io.File;
 import java.util.concurrent.Executors;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import org.johnnei.javatorrent.TorrentClient;
 import org.johnnei.javatorrent.magnetlink.MagnetLink;
@@ -17,6 +17,7 @@ import org.johnnei.javatorrent.phases.PhasePreMetadata;
 import org.johnnei.javatorrent.phases.PhaseRegulator;
 import org.johnnei.javatorrent.phases.PhaseSeed;
 import org.johnnei.javatorrent.protocol.extension.ExtensionModule;
+import org.johnnei.javatorrent.torrent.algos.requests.RateBasedLimiter;
 import org.johnnei.javatorrent.torrent.frame.TorrentFrame;
 import org.johnnei.javatorrent.tracker.PeerConnectorPool;
 import org.johnnei.javatorrent.tracker.UdpTrackerModule;
@@ -33,26 +34,27 @@ public class JavaTorrent {
 
 		try {
 			TorrentClient torrentClient = new TorrentClient.Builder()
-					.setConnectionDegradation(new ConnectionDegradation.Builder()
-							.registerDefaultConnectionType(TcpSocket.class, TcpSocket::new)
-							.build())
-					.registerModule(new ExtensionModule.Builder()
-							.registerExtension(new UTMetadataExtension(new File(Config.getConfig().getTempFolder()), downloadFolder))
-							.build())
-					.registerModule(new UdpTrackerModule.Builder()
-							.setPort(Config.getConfig().getInt("download-port"))
-							.build())
-					.setPhaseRegulator(new PhaseRegulator.Builder()
-							.registerInitialPhase(PhasePreMetadata.class, PhasePreMetadata::new, PhaseMetadata.class)
-							.registerPhase(PhaseMetadata.class, PhaseMetadata::new, PhaseData.class)
-							.registerPhase(PhaseData.class, PhaseData::new, PhaseSeed.class)
-							.registerPhase(PhaseSeed.class, PhaseSeed::new)
-							.build())
-					.setPeerDistributor(UncappedDistributor::new)
-					.setPeerConnector((client) -> new PeerConnectorPool(client, maxConccurentConnectingPeers))
-					.setExecutorService(Executors.newScheduledThreadPool(Math.max(1, Runtime.getRuntime().availableProcessors() - 1)))
-					.setDownloadPort(Config.getConfig().getInt("download-port"))
-					.build();
+				.setConnectionDegradation(new ConnectionDegradation.Builder()
+					.registerDefaultConnectionType(TcpSocket.class, TcpSocket::new)
+					.build())
+				.registerModule(new ExtensionModule.Builder()
+					.registerExtension(new UTMetadataExtension(new File(Config.getConfig().getTempFolder()), downloadFolder))
+					.build())
+				.registerModule(new UdpTrackerModule.Builder()
+					.setPort(Config.getConfig().getInt("download-port"))
+					.build())
+				.setPhaseRegulator(new PhaseRegulator.Builder()
+					.registerInitialPhase(PhasePreMetadata.class, PhasePreMetadata::new, PhaseMetadata.class)
+					.registerPhase(PhaseMetadata.class, PhaseMetadata::new, PhaseData.class)
+					.registerPhase(PhaseData.class, PhaseData::new, PhaseSeed.class)
+					.registerPhase(PhaseSeed.class, PhaseSeed::new)
+					.build())
+				.setRequestLimiter(new RateBasedLimiter())
+				.setPeerDistributor(UncappedDistributor::new)
+				.setPeerConnector(client -> new PeerConnectorPool(client, maxConccurentConnectingPeers))
+				.setExecutorService(Executors.newScheduledThreadPool(Math.max(1, Runtime.getRuntime().availableProcessors() - 1)))
+				.setDownloadPort(Config.getConfig().getInt("download-port"))
+				.build();
 
 			TorrentFrame frame = new TorrentFrame(torrentClient);
 			boolean showGui = true;
