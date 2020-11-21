@@ -72,7 +72,7 @@ public class TabGeneral extends JPanel implements ActionListener {
 			fc.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
 			if (fc.showDialog(this, "Choose directory") == JFileChooser.APPROVE_OPTION) {
 				File newFolder = fc.getSelectedFile();
-				Config.getConfig().set("download-output_folder", newFolder.getAbsolutePath() + "\\");
+				Config.getConfig().set("download-output_folder", newFolder.getAbsolutePath() + File.pathSeparator);
 				downloadFolder.setText(Config.getConfig().getString("download-output_folder"));
 				repaint();
 			}

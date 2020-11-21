@@ -1,5 +1,8 @@
 package org.johnnei.javatorrent.utils.config;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
@@ -10,6 +13,8 @@ import java.util.IllegalFormatException;
 import java.util.Properties;
 
 public class Config {
+
+	private static final Logger LOGGER = LoggerFactory.getLogger(Config.class);
 
 	/**
 	 * The singleton config instance
@@ -50,7 +55,7 @@ public class Config {
 		defaultProperties.put("peer-max_burst_ratio", "1.5");
 		defaultProperties.put("peer-max_concurrent_connecting", "2");
 		defaultProperties.put("peer-max_connecting", "50");
-		defaultProperties.put("download-output_folder", ".\\");
+		defaultProperties.put("download-output_folder", ".");
 		defaultProperties.put("download-port", "6881");
 		defaultProperties.put("general-show_all_peers", "false");
 
@@ -60,13 +65,20 @@ public class Config {
 	}
 
 	private void getFile(String filename) {
-		folder = System.getProperty("user.home") + "\\";
+		File configFolder = new File(System.getProperty("user.home"));
 		String os = System.getProperty("os.name");
 		if (os.equals("Windows 7") || os.equals("Windows Vista")) {
-			folder += "AppData\\Roaming\\JavaTorrent\\";
-			new File(folder).mkdirs();
+			configFolder = new File(new File(configFolder, "AppData"), "Roaming");
+		} else {
+			configFolder = new File(configFolder, ".local");
 		}
-		configFile = new File(folder + filename);
+		configFolder = new File(configFolder, "JavaTorrent");
+		folder = configFolder.getAbsolutePath();
+		if (!configFolder.exists() && !configFolder.mkdirs()) {
+			throw new IllegalStateException("Failed to create directories for configuration: " + folder);
+		}
+		configFile = new File(folder, filename);
+		LOGGER.debug("Loading configuration in {}", configFile.getAbsolutePath());
 		if (!configFile.exists()) {
 			try {
 				configFile.createNewFile();
