@@ -18,6 +18,7 @@ import java.util.List;
 
 import org.johnnei.javatorrent.TorrentClient;
 import org.johnnei.javatorrent.Version;
+import org.johnnei.javatorrent.gui.model.TorrentWithState;
 import org.johnnei.javatorrent.torrent.Torrent;
 import org.johnnei.javatorrent.torrent.files.Piece;
 import org.johnnei.javatorrent.torrent.frame.table.FilesTableModel;
@@ -31,12 +32,14 @@ import org.johnnei.javatorrent.torrent.frame.table.TrackerTableModel;
 public class TorrentFrame extends JFrame implements ActionListener {
 
 	private static final long serialVersionUID = 1L;
+	private final TorrentClient torrentClient;
 	private JTable torrentList;
 	private MenubarPanel menubar;
-	private List<Torrent> torrents;
+	private List<TorrentWithState> torrents;
 	private Timer updateTimer;
 
 	public TorrentFrame(TorrentClient torrentClient) {
+		this.torrentClient = torrentClient;
 		torrents = new ArrayList<>();
 
 		setPreferredSize(new Dimension(1280, 720));
@@ -101,12 +104,14 @@ public class TorrentFrame extends JFrame implements ActionListener {
 
 	public void updateData() {
 		for (int i = 0; i < torrents.size(); i++) {
-			torrents.get(i).pollRates();
+			torrents.get(i).getTorrent().pollRates();
 		}
 	}
 
 	public void addTorrent(Torrent torrent) {
-		torrents.add(torrent);
+		torrentClient.getTorrentPeerState(torrent).ifPresent(peerState -> {
+			torrents.add(new TorrentWithState(torrent, peerState));
+		});
 	}
 
 	@Override
@@ -117,7 +122,7 @@ public class TorrentFrame extends JFrame implements ActionListener {
 		}
 	}
 
-	public Torrent getSelectedTorrent() {
+	public TorrentWithState getSelected() {
 		int row = torrentList.getSelectedRow();
 
 		if (row == -1) {
@@ -125,6 +130,16 @@ public class TorrentFrame extends JFrame implements ActionListener {
 		}
 
 		return torrents.get(row);
+	}
+
+	public Torrent getSelectedTorrent() {
+		TorrentWithState state = getSelected();
+
+		if (state == null) {
+			return null;
+		} else {
+			return state.getTorrent();
+		}
 	}
 
 }

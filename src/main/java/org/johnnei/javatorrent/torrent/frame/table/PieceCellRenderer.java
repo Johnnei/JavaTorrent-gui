@@ -27,36 +27,26 @@ public class PieceCellRenderer extends DefaultTableCellRenderer {
 	protected void paintComponent(Graphics g) {
 		float pixelsPerBlock = (float) getWidth() / piece.getBlockCount();
 		
-		boolean isDone = piece.getBlockStatus(0) == BlockStatus.Verified;
-		boolean isRequested = isRequested(piece, 0);
-		boolean render = false;
-		int startIndex = 0;
-		
-		for (int i = 0; i < piece.getBlockCount(); i++) {
-			render = piece.getBlockStatus(i) == BlockStatus.Verified || isRequested(piece, i) != isRequested;
-			
-			if (render || i + 1 >= piece.getBlockCount()) {
-				if (isDone) {
-					g.setColor(Color.GREEN);
-				} else if (isRequested) {
-					g.setColor(Color.ORANGE);
-				} else {
-					g.setColor(Color.RED);
-				}
-				
-				int blockCount = 1 + i - startIndex;
-				g.fillRect((int) (startIndex * pixelsPerBlock), 0, (int) (blockCount * pixelsPerBlock), getHeight());
-				
-				startIndex = i;
-				isDone = piece.getBlockStatus(i) == BlockStatus.Verified;
-				isRequested = isRequested(piece, i);
-				render = false;
-			}
-		}
-	}
+		for (int blockIndex = 0; blockIndex < piece.getBlockCount(); blockIndex++) {
+			BlockStatus blockStatus = piece.getBlockStatus(blockIndex);
 
-	private boolean isRequested(Piece piece, int blockIndex) {
-		return piece.getBlockStatus(blockIndex) == BlockStatus.Requested || piece.getBlockStatus(blockIndex) == BlockStatus.Stored;
+			switch (blockStatus) {
+				case Needed:
+					g.setColor(Color.GRAY);
+					break;
+				case Requested:
+					g.setColor(Color.ORANGE);
+					break;
+				case Stored:
+					g.setColor(Color.BLUE.brighter());
+					break;
+				case Verified:
+					g.setColor(Color.GREEN);
+					break;
+			}
+
+			g.fillRect((int) (blockIndex * pixelsPerBlock), 0, (int) ((blockIndex + 1) * pixelsPerBlock), getHeight());
+		}
 	}
 
 }

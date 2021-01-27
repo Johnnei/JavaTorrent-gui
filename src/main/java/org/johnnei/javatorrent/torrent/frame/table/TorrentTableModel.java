@@ -4,6 +4,7 @@ import javax.swing.table.AbstractTableModel;
 
 import java.util.List;
 
+import org.johnnei.javatorrent.gui.model.TorrentWithState;
 import org.johnnei.javatorrent.torrent.Torrent;
 import org.johnnei.javatorrent.utils.StringFormatUtils;
 import org.johnnei.javatorrent.utils.TorrentUtils;
@@ -28,9 +29,9 @@ public class TorrentTableModel extends AbstractTableModel {
 		"Leechers"
 	};
 
-	private List<Torrent> torrents;
+	private List<TorrentWithState> torrents;
 
-	public TorrentTableModel(List<Torrent> torrents) {
+	public TorrentTableModel(List<TorrentWithState> torrents) {
 		this.torrents = torrents;
 	}
 
@@ -51,7 +52,7 @@ public class TorrentTableModel extends AbstractTableModel {
 
 	@Override
 	public Object getValueAt(int rowIndex, int columnIndex) {
-		Torrent torrent = torrents.get(rowIndex);
+		Torrent torrent = torrents.get(rowIndex).getTorrent();
 
 		switch (columnIndex) {
 			case COL_NAME:

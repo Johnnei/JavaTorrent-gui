@@ -1,6 +1,13 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <artifactId>base</artifactId>
+        <groupId>org.johnnei.parent</groupId>
+        <version>11-2</version>
+    </parent>
+
     <groupId>org.johnnei</groupId>
     <artifactId>javatorrent-gui</artifactId>
     <packaging>jar</packaging>
@@ -8,12 +15,10 @@
     <name>JavaTorrent User Interface</name>
     <description>JavaTorrent implementation as GUI</description>
     <properties>
-        <maven.compiler.source>1.8</maven.compiler.source>
-        <maven.compiler.target>1.8</maven.compiler.target>
         <dependency.org.apache.logging.log4j.log4j-api>2.13.3</dependency.org.apache.logging.log4j.log4j-api>
         <dependency.org.apache.logging.log4j.log4j-slf4j-impl>2.13.3</dependency.org.apache.logging.log4j.log4j-slf4j-impl>
         <dependency.org.apache.logging.log4j.log4j-core>2.13.3</dependency.org.apache.logging.log4j.log4j-core>
-        <dependency.org.johnnei.javatorrent>0.7.0</dependency.org.johnnei.javatorrent>
+        <dependency.org.johnnei.javatorrent>0.8.0-SNAPSHOT</dependency.org.johnnei.javatorrent>
         <dependency.org.slf4j.slf4j-api>1.7.30</dependency.org.slf4j.slf4j-api>
     </properties>
     <dependencies>

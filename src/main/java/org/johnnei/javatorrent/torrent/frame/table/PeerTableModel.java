@@ -5,6 +5,7 @@ import javax.swing.table.AbstractTableModel;
 import java.time.Duration;
 import java.time.LocalDateTime;
 
+import org.johnnei.javatorrent.gui.model.TorrentWithState;
 import org.johnnei.javatorrent.torrent.Torrent;
 import org.johnnei.javatorrent.torrent.peer.Peer;
 import org.johnnei.javatorrent.torrent.peer.PeerDirection;
@@ -64,7 +65,8 @@ public class PeerTableModel extends AbstractTableModel {
 
 	@Override
 	public Object getValueAt(int rowIndex, int columnIndex) {
-		Torrent torrent = torrentFrame.getSelectedTorrent();
+		TorrentWithState torrentWithState = torrentFrame.getSelected();
+		Torrent torrent = torrentWithState.getTorrent();
 		Peer peer = torrent.getPeers().get(rowIndex);
 		Duration duration = Duration.between(peer.getLastActivity(), LocalDateTime.now());
 
@@ -84,7 +86,7 @@ public class PeerTableModel extends AbstractTableModel {
 			case COL_PIECES:
 				return peer.countHavePieces();
 			case COL_REQUESTS:
-				return String.format("%d/%d | %d", peer.getWorkQueueSize(PeerDirection.Download), peer.getRequestLimit(), peer.getWorkQueueSize(PeerDirection.Upload));
+				return String.format("%d/%d | %d", torrentWithState.getPeerState().getPendingBlocks(peer, PeerDirection.Download), peer.getRequestLimit(), peer.getWorkQueueSize(PeerDirection.Upload));
 			case COL_FLAGS:
 				return getFlagsFor(peer);
 			default:

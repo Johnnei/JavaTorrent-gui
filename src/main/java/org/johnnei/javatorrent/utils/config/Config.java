@@ -5,11 +5,13 @@ import org.slf4j.LoggerFactory;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
-import java.io.File;
-import java.io.FileReader;
-import java.io.FileWriter;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.Collection;
 import java.util.IllegalFormatException;
+import java.util.List;
 import java.util.Properties;
 
 public class Config {
@@ -42,12 +44,11 @@ public class Config {
 	/**
 	 * The file which the config is being stored
 	 */
-	private File configFile;
+	private Path configFile;
 
-	/**
-	 * The application data folder in which we store config/temp data
-	 */
-	private String folder;
+	private Path metadataDirectory;
+
+	private Path tempDirectory;
 
 	private Config() {
 		Properties defaultProperties = new Properties();
@@ -65,25 +66,38 @@ public class Config {
 	}
 
 	private void getFile(String filename) {
-		File configFolder = new File(System.getProperty("user.home"));
-		String os = System.getProperty("os.name");
-		if (os.equals("Windows 7") || os.equals("Windows Vista")) {
-			configFolder = new File(new File(configFolder, "AppData"), "Roaming");
-		} else {
-			configFolder = new File(configFolder, ".local");
+		Path userHome = Paths.get(System.getProperty("user.home"));
+		String os = System.getProperty("os.name").toLowerCase();
+
+		Path configDirectory;
+		if (os.contains("win")) {
+			configDirectory = userHome.resolve("Appdata").resolve("Roaming");
+		} else  {
+			configDirectory = userHome.resolve(".local").resolve("share");
 		}
-		configFolder = new File(configFolder, "JavaTorrent");
-		folder = configFolder.getAbsolutePath();
-		if (!configFolder.exists() && !configFolder.mkdirs()) {
-			throw new IllegalStateException("Failed to create directories for configuration: " + folder);
+
+		configDirectory = configDirectory.resolve("javatorrent").toAbsolutePath();
+		metadataDirectory = configDirectory.resolve("metadata");
+		tempDirectory = configDirectory.resolve("temp");
+
+		Collection<Path> directoriesToCheck = List.of(configDirectory, metadataDirectory, tempDirectory);
+		for (Path directory : directoriesToCheck) {
+			if (Files.notExists(directory)) {
+				try {
+					Files.createDirectories(directory);
+				} catch (IOException e) {
+					throw new IllegalStateException("Failed to create configuration directory at " + directory.toAbsolutePath(), e);
+				}
+			}
 		}
-		configFile = new File(folder, filename);
-		LOGGER.debug("Loading configuration in {}", configFile.getAbsolutePath());
-		if (!configFile.exists()) {
+
+		configFile = configDirectory.resolve(filename);
+		LOGGER.info("Loading configuration in {}", configFile.toAbsolutePath());
+		if (Files.notExists(configFile)) {
 			try {
-				configFile.createNewFile();
+				Files.createFile(configFile);
 			} catch (IOException e) {
-				e.printStackTrace();
+				throw new IllegalStateException("Failed to create empty config file", e);
 			}
 		}
 	}
@@ -92,7 +106,7 @@ public class Config {
 	 * Loads all settings from the config file
 	 */
 	void load() {
-		try (BufferedReader inputStream = new BufferedReader(new FileReader(configFile))){
+		try (BufferedReader inputStream = Files.newBufferedReader(configFile)) {
 			properties.load(inputStream);
 		} catch (IOException e) {
 			try {
@@ -108,7 +122,7 @@ public class Config {
 	 * Saves the config file to the hdd
 	 */
 	public void save() {
-		try (BufferedWriter outStream = new BufferedWriter(new FileWriter(configFile))) {
+		try (BufferedWriter outStream = Files.newBufferedWriter(configFile)) {
 			properties.store(outStream, "JavaTorrent GUI Configuration");
 		} catch (IOException e) {
 			try {
@@ -195,8 +209,12 @@ public class Config {
 		return get(key);
 	}
 
-	public String getTempFolder() {
-		return folder;
+	public Path getMetadataDirectory() {
+		return metadataDirectory;
+	}
+
+	public Path getTempFolder() {
+		return tempDirectory;
 	}
 
 	private boolean isBoolean(String s) {

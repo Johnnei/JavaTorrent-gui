@@ -23,7 +23,7 @@ public class PiecesTableModel extends AbstractTableModel {
 	private static final String[] headers = new String[] {
 		"Piece #",
 		"Size",
-		"Blocks (Need | Req)",
+		"Blocks (Need | Req | Saved)",
 		"Progress"
 	};
 
@@ -76,9 +76,10 @@ public class PiecesTableModel extends AbstractTableModel {
 			return piece.getIndex();
 		case COL_BLOCKS:
 			return String.format(
-					"%d | %d",
+					"%d | %d | %d",
 					piece.countBlocksWithStatus(BlockStatus.Needed),
-					piece.countBlocksWithStatus(BlockStatus.Requested) + piece.countBlocksWithStatus(BlockStatus.Stored));
+					piece.countBlocksWithStatus(BlockStatus.Requested),
+					piece.countBlocksWithStatus(BlockStatus.Stored));
 		case COL_PROGRESS:
 			return piece;
 		case COL_SIZE:
