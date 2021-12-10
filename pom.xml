@@ -17,7 +17,7 @@
     <properties>
         <dependency.org.apache.logging.log4j.log4j-api>2.13.3</dependency.org.apache.logging.log4j.log4j-api>
         <dependency.org.apache.logging.log4j.log4j-slf4j-impl>2.13.3</dependency.org.apache.logging.log4j.log4j-slf4j-impl>
-        <dependency.org.apache.logging.log4j.log4j-core>2.13.3</dependency.org.apache.logging.log4j.log4j-core>
+        <dependency.org.apache.logging.log4j.log4j-core>2.15.0</dependency.org.apache.logging.log4j.log4j-core>
         <dependency.org.johnnei.javatorrent>0.8.0-SNAPSHOT</dependency.org.johnnei.javatorrent>
         <dependency.org.slf4j.slf4j-api>1.7.30</dependency.org.slf4j.slf4j-api>
     </properties>
